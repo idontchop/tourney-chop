@@ -1,0 +1,34 @@
+{
+  "name": "tourney-chop",
+  "version": "1.0.0",
+  "description": "Tournament Chop ICM/Chip calculation library",
+  "main": "tourney-chop.js",
+  "module": "main.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha -r esm"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/idontchop/tourney-chop.git"
+  },
+  "babel": {
+    "presets": [
+      "env"
+    ]
+  },
+  "author": "Nathan Dunn",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/idontchop/tourney-chop/issues"
+  },
+  "homepage": "https://github.com/idontchop/tourney-chop#readme",
+  "devDependencies": {
+    "@babel/core": "^7.12.10"
+  },
+  "dependencies": {
+    "esm": "^3.2.25"
+  }
+}
