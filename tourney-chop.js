@@ -65,7 +65,7 @@ export class TourneyChop  {
             let start = (position < this.players-1) ? position + 1 : 0;
             let end = (position < this.players-1) ? this.players : position;
             for ( let i = start; i < end; i++) {
-                this.chipCount[i] += Math.floor(difference / (end-start))
+                this.chipCount[i] += Math.round(difference / (end-start))
             }
         } else {
             // not locked so just reset chip counts
@@ -113,10 +113,75 @@ export class TourneyChop  {
 
     calcICM () {
 
+        return this.chipCount.map( (e,i) => {
+
+            // array of chip counts of other players minus this one
+            let chips = this.chipCount.slice(0,i).concat(this.chipCount.slice(i+1,this.players))
+            // calculate equity for each prize
+            return this.payout.map ( (prize,pIndex) => {
+                //let otherPrizes = this.payout.slice(0,pIndex).concat(this.payout.slice(i+1,this.payout.length))
+                // just need to calc each scenario of chips above?
+                // with permutations, calculate different ways of placing
+                if ( pIndex === 0) {
+                    return ( e / this.chipTotal) * prize
+                } else {
+                    //console.log("combo:", pIndex, " ", this.calcCombinations(chips,pIndex))
+                    return this.calcPermutations( chips, pIndex).map( (v, i) => {
+                        let aboveSum = v.reduce( (a,b) => a+b);
+                        let aboveProb = this.calcProb(v)
+                        console.log('a:', v, " ap:", aboveProb, " p: ", aboveProb * ( e / (this.chipTotal - aboveSum) ))
+                        return (aboveProb * ( e / (this.chipTotal - aboveSum) )) //* prize
+                    }).reduce((a,b) => a+b) * prize
+                }
+                
+            }).reduce( (a,b) => a+b)
+        })
+
     }
 
     calcChipChop () {
 
+    }
+
+    calcCombinations(set,length) {
+        this.permutations=[]
+        this.permute([],set,length)
+        return this.permutations;
+    }
+
+    calcPermutations(set,length) {
+        this.permutations=[]
+        this.permute([],set,length,false) // side effect, why did I do it this way?
+        return this.permutations
+    }
+
+    calcProb(finish, chips=this.chipTotal, acc = 1) {
+        if(finish.length === 0) return acc
+        let c = finish[0]
+        let newfinish = [...finish]
+        newfinish.splice(0,1)
+        return this.calcProb(newfinish, chips-c, acc * (c/chips))
+
+    }
+
+    permute(partial, set, k, combo=true) {
+        //if(set.length < k) return
+        
+        for (let i = 0; i < set.length; i++) {
+
+            if (k === 1) {
+                console.log("w:", partial, set)
+                this.permutations.push(partial.concat([set[i]]))
+            }
+            else {
+                let copy = set.slice() // remove item at index and make copy
+                if(combo) { copy.splice(0,i+1)}
+                else {copy.splice(i,1)}
+                //if (partial[0] === 1500) console.log(partial, set[i], set, k, set.slice().splice(0,1), i)
+                this.permute(partial.concat(set[i]), copy, k - 1, combo) // recurse
+            }
+
+        }
     }
 }
 
