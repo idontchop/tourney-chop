@@ -12,7 +12,7 @@
  * calcChipChop()
  *
  */
-export class TourneyChop  {
+export default class TourneyChop  {
     
     constructor(chipTotal = 0, prizePool = 0, players = 2) {
 
@@ -21,7 +21,9 @@ export class TourneyChop  {
         this.players = players;         // Number of players
         
         this.locked = !(chipTotal === 0);
-            // if locked is true, chipTotal and Prizepool has been set and cannot be changed
+            // if locked is true, chipTotal has been set and cannot be changed
+
+        this.plocked = false; // prizepool can only be locked by user
 
         if ( this.locked ) {
             this.chipCount = Array(players).fill( Math.round(chipTotal / players) )
@@ -45,8 +47,16 @@ export class TourneyChop  {
         return [this.chipCount, this.payout]
     }
 
+    get totals() {
+        return [this.chipTotal, this.prizePool]
+    }
+
     /**
      * position starts at 0
+     * 
+     * If chip total is locked, this will adjust chip positions below the set position.
+     * If it is the last position, it will adjust all positions.
+     * 
      * @param {*} chips 
      * @param {*} position 
      */
@@ -83,14 +93,14 @@ export class TourneyChop  {
         let difference = this.payout[position] - payout;
         this.payout[position] = payout;
 
-        if ( this.locked ) {
+        if ( this.plocked ) {
             let start = (position < this.players-1) ? position + 1 : 0;
             let end = (position < this.players-1) ? this.players : position;
             for ( let i = start; i < end; i++) {
                 this.payout[i] += Math.floor(difference / (end-start))
             }
         } else {
-            this.resetAll()
+            this.resetPrizePool()
         }
     }
 
@@ -119,28 +129,46 @@ export class TourneyChop  {
             let chips = this.chipCount.slice(0,i).concat(this.chipCount.slice(i+1,this.players))
             // calculate equity for each prize
             return this.payout.map ( (prize,pIndex) => {
-                //let otherPrizes = this.payout.slice(0,pIndex).concat(this.payout.slice(i+1,this.payout.length))
-                // just need to calc each scenario of chips above?
+                
+                // just need to calc each scenario of chip stacks above
                 // with permutations, calculate different ways of placing
                 if ( pIndex === 0) {
-                    return ( e / this.chipTotal) * prize
+                    return ( e / this.chipTotal) * prize // first place
                 } else {
-                    //console.log("combo:", pIndex, " ", this.calcCombinations(chips,pIndex))
+
+                    // find permutations for each place, then calc probability of event happening
+                    // chip stack / total chips 
+                    // sum the probabilities and multiply by prize
                     return this.calcPermutations( chips, pIndex).map( (v, i) => {
                         let aboveSum = v.reduce( (a,b) => a+b);
                         let aboveProb = this.calcProb(v)
-                        console.log('a:', v, " ap:", aboveProb, " p: ", aboveProb * ( e / (this.chipTotal - aboveSum) ))
                         return (aboveProb * ( e / (this.chipTotal - aboveSum) )) //* prize
                     }).reduce((a,b) => a+b) * prize
                 }
                 
+                // sum EV of all prizes
             }).reduce( (a,b) => a+b)
-        })
+
+            // round the results
+            // possible there ends up being a remainder? 
+        }).map ( e => Math.round(e))
 
     }
 
     calcChipChop () {
 
+        // find guarenteed payout
+        let lowestPay = this.payout.reduce ( (a,b) => Math.min(a,b))
+
+        // calculate total winnable amount after guarentee
+        let above = this.payout.map(e => e-lowestPay)
+            .reduce ( (a,b) => a+b)
+
+        // calculate share of 
+        return this.chipCount.map ( e => 
+            ( e / this.chipTotal ) * above + lowestPay
+        )
+        .map ( e => Math.round(e))
     }
 
     calcCombinations(set,length) {
@@ -170,7 +198,6 @@ export class TourneyChop  {
         for (let i = 0; i < set.length; i++) {
 
             if (k === 1) {
-                console.log("w:", partial, set)
                 this.permutations.push(partial.concat([set[i]]))
             }
             else {

@@ -63,5 +63,17 @@ describe('HoldemStrings Test', function () {
         t.setChipCount(750,2)
         console.log(t.chipsAndPrize)
         console.log(t.calcICM())
+    }),
+    it('chip chop test', () => {
+        let t = new TourneyChop(90000,8000,3)
+        t.setChipCount(45000,0)
+        t.setChipCount(35000,1)
+        t.setChipCount(10000,2)
+        t.setPayout(4000,0)
+        t.setPayout(2000,1)
+        t.setPayout(2000,2)
+        console.log(t.chipsAndPrize)
+        console.log("chip chop: ", t.calcChipChop())
+        console.log("icm chop: ", t.calcICM())
     })
 })

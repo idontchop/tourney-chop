@@ -8,7 +8,8 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha -r esm"
+    "test": "mocha -r esm",
+    "preinstall": "npm install C:\\Users\\micro\\Onedrive\\javascript-workspace\\holdem-strings; npm install C:\\Users\\micro\\Onedrive\\javascript-workspace\\tourney-chop"
   },
   "repository": {
     "type": "git",
@@ -31,4 +32,6 @@
   "dependencies": {
     "esm": "^3.2.25"
   }
+
+  
 }
