@@ -68,14 +68,17 @@ export default class TourneyChop  {
              chips > this.chipTotal) throw new Error("malformed position argument: " + position)
         
         let difference = this.chipCount[position] - chips;
+        
         this.chipCount[position] = chips;
+
+        
 
         if (this.locked) {
             // if locked, spread the difference down rest, unless last was changed, then spread equally
             let start = (position < this.players-1) ? position + 1 : 0;
             let end = (position < this.players-1) ? this.players : position;
             for ( let i = start; i < end; i++) {
-                this.chipCount[i] += Math.round(difference / (end-start))
+                this.chipCount[i] += Math.floor(difference / (end-start))
             }
         } else {
             // not locked so just reset chip counts
@@ -104,6 +107,30 @@ export default class TourneyChop  {
         }
     }
 
+    setChipTotal ( total ) {
+
+        if ( this.locked ) {
+            // get total difference and add to all chip counts
+            let diff = total - this.chipTotal
+            this.chipCount = this.chipCount.map ( e => Math.round(e + (diff/this.players)) )
+            this.chipTotal = total
+
+        } else {
+            this.chipTotal = total
+        }
+    }
+
+    setPrizePool ( total ) {
+
+        if ( this.plocked ) {
+            let diff = total - this.prizePool
+            this.payout = this.payout.map ( e => Math.round(e + (diff/this.players)) )
+            this.prizePool = total
+        } else {
+            this.prizePool = total
+        }
+    }
+
     setChipCounts ( chipsArray ) {
         this.chipCount = chipsArray;
         this.resetAll()
@@ -121,6 +148,9 @@ export default class TourneyChop  {
         this.prizePool = this.payout.reduce ( (sum, e) => sum + e)
     }
 
+    chopICM () {
+        return this.calcICM()
+    }
     calcICM () {
 
         return this.chipCount.map( (e,i) => {
@@ -155,6 +185,9 @@ export default class TourneyChop  {
 
     }
 
+    chopChips () {
+        return this.calcChipChop()
+    }
     calcChipChop () {
 
         // find guarenteed payout
