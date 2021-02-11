@@ -62,24 +62,21 @@ export default class TourneyChop  {
      */
     setChipCount ( chips, position ) {
 
-        if ( position < 0 ||
+        if ( chips % 1 !== 0 ||
+             position < 0 ||
              position > this.players -1 ||
              chips < 0 ||
-             chips > this.chipTotal) throw new Error("malformed position argument: " + position)
+             chips > this.chipTotal) throw new Error("malformed position argument: " + position, chips)
         
         let difference = this.chipCount[position] - chips;
-        
-        this.chipCount[position] = chips;
 
-        
+        this.chipCount[position] = chips;
 
         if (this.locked) {
             // if locked, spread the difference down rest, unless last was changed, then spread equally
-            let start = (position < this.players-1) ? position + 1 : 0;
-            let end = (position < this.players-1) ? this.players : position;
-            for ( let i = start; i < end; i++) {
-                this.chipCount[i] += Math.floor(difference / (end-start))
-            }
+            
+            this.chipCount = this.distributeRemainder(this.chipCount, difference, position)
+            
         } else {
             // not locked so just reset chip counts
             this.resetAll();
@@ -97,14 +94,43 @@ export default class TourneyChop  {
         this.payout[position] = payout;
 
         if ( this.plocked ) {
-            let start = (position < this.players-1) ? position + 1 : 0;
-            let end = (position < this.players-1) ? this.players : position;
-            for ( let i = start; i < end; i++) {
-                this.payout[i] += Math.floor(difference / (end-start))
-            }
+            this.payout = this.distributeRemainder(this.payout, difference, position)
         } else {
             this.resetPrizePool()
         }
+    }
+
+    /**
+     * Ran by setChipCount and setPayout to distribute chips to other players
+     * when a player's chips are set and the chip total / prize pool is locked.
+     * 
+     * @param {*} array 
+     * @param {*} difference 
+     * @param {*} position 
+     */
+    distributeRemainder ( array, difference, position ) {
+
+        let start = (position < this.players-1) ? position + 1 : 0;
+        let end = (position < this.players-1) ? this.players : position;
+        let rest = difference % (end-start) // remainder
+        let remainder = rest // remainder holds value
+        for ( let i = start; i < end; i++) {    
+            if ( rest < 0 ) { // Use ceil if we have a remainder, floor if not
+                array[i] -= 1
+                rest++
+            }
+            else if ( rest > 0 ) {
+                array[i] += 1
+                rest--
+            }
+            
+            if ( remainder < 0) {
+                array[i] += Math.ceil(difference / (end-start))
+            } else {
+                array[i] += Math.floor(difference / (end-start))
+            }
+        }
+        return array
     }
 
     setChipTotal ( total ) {

@@ -1,5 +1,5 @@
 const assert = require('assert')
-import {TourneyChop} from '../tourney-chop'
+import TourneyChop from '../tourney-chop'
 
 describe('HoldemStrings Test', function () {
     
@@ -75,5 +75,33 @@ describe('HoldemStrings Test', function () {
         console.log(t.chipsAndPrize)
         console.log("chip chop: ", t.calcChipChop())
         console.log("icm chop: ", t.calcICM())
+    }),
+    it('test set ChipCount', () => {
+        let totalChips = 90000
+        let t = new TourneyChop(totalChips, 8000, 6)
+        let testArray = []
+
+        for ( let i = 0; i < 10000; i++) {
+            t.setChipCount(Math.floor((Math.random() * 20000)) + 50000, Math.floor(Math.random() * 5))
+            let chipCount = t.chipsAndPrize[0].reduce((a,b) => a+b)
+            if (t.totals[0] !== chipCount) {
+                testArray.push([chipCount, t.chipsAndPrize[0].slice()])
+            }
+        }
+
+        for ( let i = 0; i < 10000; i++) {
+            t.setPayout(Math.floor( (Math.random() * 2000)) + 1000, Math.floor(Math.random() *5) )
+            let prizeCount = t.chipsAndPrize[1].reduce((a,b) => a+b)
+            if ( t.totals[1] !== prizeCount) {
+                testArray.push([prizeCount, t.chipsAndPrize[1].slice()])
+            }
+        }
+
+        if (testArray.length !==0) {
+            console.log(testArray)
+        }
+        assert.deepStrictEqual(testArray.length ,0)
+
+        
     })
 })
