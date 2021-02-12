@@ -13,6 +13,8 @@
  *
  */
 export default class TourneyChop  {
+
+
     
     constructor(chipTotal = 0, prizePool = 0, players = 2) {
 
@@ -34,12 +36,12 @@ export default class TourneyChop  {
             this.chipCount = Array(players).fill(0)
         }
 
-        let payoutStandard = [.27, .16, .10, .08, .07, .05, .04, .03, .025, .02, .019, .019, .019, .019, .019]
+        this.payoutStandard = [.27, .16, .10, .08, .07, .05, .04, .03, .025, .02, .019, .019, .019, .019, .019]
 
         this.payout = []
 
         for ( let i = 0; i < players; i++) {
-            this.payout[i] = Math.round (prizePool * payoutStandard[i])
+            this.payout[i] = Math.round (prizePool * this.payoutStandard[i])
         }
     }
 
@@ -66,26 +68,32 @@ export default class TourneyChop  {
              position < 0 ||
              position > this.players -1 ||
              chips < 0 ||
-             chips > this.chipTotal) throw new Error("malformed position argument: " + position, chips)
-        
-        let difference = this.chipCount[position] - chips;
+             chips > this.chipTotal) throw new Error("malformed position argument: " + position + " c: " + chips)
 
-        this.chipCount[position] = chips;
-
-        if (this.locked) {
-            // if locked, spread the difference down rest, unless last was changed, then spread equally
-            
-            this.chipCount = this.distributeRemainder(this.chipCount, difference, position)
-            
+        if ( chips === 0 && position === this.players-1) {
+            this.popPlayer()
         } else {
-            // not locked so just reset chip counts
-            this.resetAll();
+            
+            let difference = this.chipCount[position] - chips;
+
+            this.chipCount[position] = chips;
+
+            if (this.locked) {
+                // if locked, spread the difference down rest, unless last was changed, then spread equally
+                
+                this.chipCount = this.distributeRemainder(this.chipCount, difference, position)
+                
+            } else {
+                // not locked so just reset chip counts
+                this.resetAll();
+            }
         }
     }
 
     setPayout ( payout, position ) {
 
-        if ( payout < 0 ||
+        if ( payout % 1 !== 0 ||
+             payout < 0 ||
              payout > this.prizePool ||
              position < 0 ||
              position > this.players-1) throw new Error("malformed argument: " + position + " " + payout)
@@ -160,6 +168,29 @@ export default class TourneyChop  {
     setChipCounts ( chipsArray ) {
         this.chipCount = chipsArray;
         this.resetAll()
+    }
+
+    popPlayer () {
+        this.players--
+        this.payout.pop()
+
+        if (this.locked) {
+            this.setChipCount(this.chipCount.pop() + this.chipCount[0], 0)
+            
+        } else {
+            this.chipCount.pop()
+            this.resetChipTotal()
+        }
+    }
+
+    addPlayer () {
+        this.players++
+        this.chipCount.push(0)
+        this.setChipCount(1, this.players-1)
+
+        this.payout.push(0)
+        this.setPayout(Math.floor(this.payoutStandard[this.players] * this.prizePool), this.players-1)
+
     }
 
     resetAll () {
