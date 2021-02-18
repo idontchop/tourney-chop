@@ -30,8 +30,7 @@
     "@babel/core": "^7.12.10"
   },
   "dependencies": {
-    "esm": "^3.2.25"
+    "esm": "^3.2.25",
+    "holdem-strings": "file:..\\holdem-strings"
   }
-
-  
 }

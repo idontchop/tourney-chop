@@ -68,7 +68,7 @@ export default class TourneyChop  {
              position < 0 ||
              position > this.players -1 ||
              chips < 0 ||
-             chips > this.chipTotal) throw new Error("malformed position argument: " + position + " c: " + chips)
+             (chips > this.chipTotal && this.locked)) throw new Error("malformed position argument: " + position + " c: " + chips)
 
         if ( chips === 0 && position === this.players-1) {
             this.popPlayer()
@@ -85,7 +85,7 @@ export default class TourneyChop  {
                 
             } else {
                 // not locked so just reset chip counts
-                this.resetAll();
+                this.resetChipTotal();
             }
         }
     }
@@ -94,7 +94,7 @@ export default class TourneyChop  {
 
         if ( payout % 1 !== 0 ||
              payout < 0 ||
-             payout > this.prizePool ||
+             (this.plocked && payout > this.prizePool) ||
              position < 0 ||
              position > this.players-1) throw new Error("malformed argument: " + position + " " + payout)
 
@@ -104,7 +104,7 @@ export default class TourneyChop  {
         if ( this.plocked ) {
             this.payout = this.distributeRemainder(this.payout, difference, position)
         } else {
-            this.resetPrizePool()
+            //this.resetPrizePool()
         }
     }
 
@@ -147,10 +147,10 @@ export default class TourneyChop  {
             // get total difference and add to all chip counts
             let diff = total - this.chipTotal
             this.chipCount = this.chipCount.map ( e => Math.round(e + (diff/this.players)) )
-            this.chipTotal = total
+            this.chipTotal = Number(total)
 
         } else {
-            this.chipTotal = total
+            this.chipTotal = Number(total)
         }
     }
 
@@ -161,7 +161,11 @@ export default class TourneyChop  {
             this.payout = this.payout.map ( e => Math.round(e + (diff/this.players)) )
             this.prizePool = total
         } else {
-            this.prizePool = total
+            this.prizePool = Number(total)
+
+            for ( let i = 0; i < this.players; i++) {
+                this.payout[i] = Math.round (this.prizePool * this.payoutStandard[i])
+            }
         }
     }
 
