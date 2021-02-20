@@ -147,7 +147,7 @@ export default class TourneyChop  {
             // get total difference and add to all chip counts
             let diff = total - this.chipTotal
             //this.chipCount = this.chipCount.map ( e => Math.round(e + (diff/this.players)) )
-            this.chipCount = this.distributeRemainder( this.chipCount, diff, 0)
+            this.chipCount = this.distributeRemainder( this.chipCount, diff, this.players)
             this.chipTotal = Number(total)
 
         } else {
