@@ -67,11 +67,11 @@ export default class TourneyChop  {
         if ( chips % 1 !== 0 ||
              position < 0 ||
              position > this.players -1 ||
-             chips < 0 ||
+             (chips === 0 && position === 0) ||
              (chips > this.chipTotal && this.locked)) throw new Error("malformed position argument: " + position + " c: " + chips)
 
-        if ( chips === 0 && position === this.players-1) {
-            this.popPlayer()
+        if ( chips === 0 ) {
+            this.popPlayer(position)
         } else {
             
             let difference = this.chipCount[position] - chips;
@@ -146,7 +146,8 @@ export default class TourneyChop  {
         if ( this.locked ) {
             // get total difference and add to all chip counts
             let diff = total - this.chipTotal
-            this.chipCount = this.chipCount.map ( e => Math.round(e + (diff/this.players)) )
+            //this.chipCount = this.chipCount.map ( e => Math.round(e + (diff/this.players)) )
+            this.chipCount = this.distributeRemainder( this.chipCount, diff, 0)
             this.chipTotal = Number(total)
 
         } else {
@@ -174,15 +175,20 @@ export default class TourneyChop  {
         this.resetAll()
     }
 
-    popPlayer () {
+    popPlayer (p) {
+
+        if ( p === undefined) {
+            p = this.players - 1
+        }
         this.players--
-        this.payout.pop()
+        this.payout.splice(p,1)
 
         if (this.locked) {
-            this.setChipCount(this.chipCount.pop() + this.chipCount[0], 0)
+            this.chipCount[0] += this.chipCount[p]
+            this.chipCount.splice(p,1)
             
         } else {
-            this.chipCount.pop()
+            this.chipCount.splice(p,1)
             this.resetChipTotal()
         }
     }
