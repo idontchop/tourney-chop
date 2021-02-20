@@ -112,6 +112,8 @@ export default class TourneyChop  {
      * Ran by setChipCount and setPayout to distribute chips to other players
      * when a player's chips are set and the chip total / prize pool is locked.
      * 
+     * Note: This is an imperative mess.
+     * 
      * @param {*} array 
      * @param {*} difference 
      * @param {*} position 
@@ -120,24 +122,86 @@ export default class TourneyChop  {
 
         let start = (position < this.players-1) ? position + 1 : 0;
         let end = (position < this.players-1) ? this.players : position;
-        let rest = difference % (end-start) // remainder
-        let remainder = rest // remainder holds value
-        for ( let i = start; i < end; i++) {    
-            if ( rest < 0 ) { // Use ceil if we have a remainder, floor if not
-                array[i] -= 1
-                rest++
-            }
-            else if ( rest > 0 ) {
-                array[i] += 1
-                rest--
-            }
-            
-            if ( remainder < 0) {
-                array[i] += Math.ceil(difference / (end-start))
-            } else {
-                array[i] += Math.floor(difference / (end-start))
+        let remainingPlayers = [] // list of players to add chips to
+        // build array of possible players to use
+        // matters if we are subtracting
+        for ( let i = start; i < end; i++) {
+            if ( array[i] !== 1 || difference > 0) {
+                remainingPlayers.push(i)
             }
         }
+
+        // Check if any players have less chips than the spread of remainder, if so
+        // set them to 1 and reduce difference
+        // otherwise, add them to list to receive difference
+        console.log(remainingPlayers, start, end, difference, position)
+        for ( let i = start; i < end && difference <= 0; i++) {
+            if ( array[i] === 1 && difference < 0) {
+                // do nothing, skip this stack
+                console.log(1)
+            } else if (array[i] + Math.floor(difference / (remainingPlayers.length)) <= 1 ) {
+                console.log(2)
+                // difference should always be negative if we get here
+
+                difference += (array[i] - 1)
+                array[i] = 1
+                remainingPlayers = remainingPlayers.filter ( e => array[e] !== 1)
+                // if ((array[i] - 1) >= Math.abs(difference) ) {
+                //     // we've ran out of difference
+                //     array[i] += difference
+                //     difference = 0
+                    
+                // } else {
+                //     difference += (array[i] - 1)
+                //     array[i] = 1
+                // }
+            } else {
+                console.log(3) // dev
+                
+            }
+        }
+
+            // if we still have difference, distribute to remainging players
+        while ( difference != 0) {
+            let rest = difference % remainingPlayers.length // remainder
+            let remainder = rest // remainder holds value
+            let spread = difference / remainingPlayers.length
+            console.log(remainingPlayers, rest, remainder, difference, spread, array)
+
+            for ( let k = remainingPlayers.length -1 ; k >= 0; k--) {    
+                let i = remainingPlayers[k]
+                if ( rest < 0 ) { // Use ceil if we have a remainder, floor if not
+                    array[i] -= 1
+                    difference += 1
+                    rest++
+                }
+                else if ( rest > 0 ) {
+                    array[i] += 1
+                    difference -= 1
+                    rest--
+                }
+                
+                if ( remainder < 0) {
+                    array[i] += Math.ceil(spread)
+                    difference -= Math.ceil(spread)
+                } else {
+                    array[i] += Math.floor(spread)
+                    difference -= Math.floor(spread)
+                }
+
+                // hacky check for negative chip count
+                // I know this all needs to be redone but should work
+                if ( array[i] < 1) {
+                    difference += (array[i] - 1)
+                    array[i] = 1
+                }
+            }
+
+            // remove any players down to 1 chip
+            remainingPlayers = remainingPlayers.filter ( e => array[e] !== 1)
+        }
+
+        console.log("Returning:", array)
         return array
     }
 
