@@ -18,10 +18,12 @@ export default class TourneyChop  {
     
     constructor(chipTotal = 0, prizePool = 0, players = 2) {
 
+        this.payoutStandard = [.27, .16, .10, .08, .07, .05, .04, .03, .025, .02, .019, .019, .019, .019, .019]
         this.chipTotal = chipTotal;     // Total count of chips, should equal sum of chipCount
         this.prizePool = prizePool;     // Prizepool, should equal sum of payout
         this.players = players;         // Number of players
-        
+        this.payoutStructure = this.payoutStandard;
+
         this.locked = !(chipTotal === 0);
             // if locked is true, chipTotal has been set and cannot be changed
 
@@ -36,13 +38,12 @@ export default class TourneyChop  {
             this.chipCount = Array(players).fill(0)
         }
 
-        this.payoutStandard = [.27, .16, .10, .08, .07, .05, .04, .03, .025, .02, .019, .019, .019, .019, .019]
+        
 
         this.payout = []
 
-        for ( let i = 0; i < players; i++) {
-            this.payout[i] = Math.round (prizePool * this.payoutStandard[i])
-        }
+        this.setPayoutStructure()
+
     }
 
     get chipsAndPrize() {
@@ -105,6 +106,21 @@ export default class TourneyChop  {
             this.payout = this.distributeRemainder(this.payout, difference, position)
         } else {
             //this.resetPrizePool()
+        }
+    }
+
+    setPayoutStructure ( newPayoutStructure ) {
+        if (Array.isArray(newPayoutStructure)) {
+            for( let i = 0; i < newPayoutStructure; i++) {
+                if (isNaN(newPayoutStructure[i]) || newPayoutStructure[i] > 1 || newPayoutStructure[i] <= 0) {
+                    throw new Error("Malformed payout structure: " + newPayoutStructure[i])
+                }
+            }
+
+            this.payoutStructure = newPayoutStructure
+            
+        } else {
+            throw Error("PayoutStructure received none array")
         }
     }
 
@@ -228,10 +244,20 @@ export default class TourneyChop  {
         } else {
             this.prizePool = Number(total)
 
-            for ( let i = 0; i < this.players; i++) {
-                this.payout[i] = Math.round (this.prizePool * this.payoutStandard[i])
+            this.calcPayoutStructure()
+        }
+    }
+
+    calcPayoutStructure () {
+
+        for ( let i = 0; i < this.players; i++) {
+            if (this.payoutStructure.length > i + 1) {
+                this.payout[i] = Math.round ( this.prizePool * this.payoutStructure[i])
+            } else {
+                this.payout[i] = Math.round ( this.prizePool * this.payoutStructure[this.payoutStructure.length - 1])
             }
         }
+
     }
 
     setChipCounts ( chipsArray ) {
