@@ -162,7 +162,7 @@ export default class TourneyChop  {
         }
 
             // if we still have difference, distribute to remainging players
-        while ( difference != 0) {
+        while ( difference != 0 && remainingPlayers.length > 0) {
             let rest = difference % remainingPlayers.length // remainder
             let remainder = rest // remainder holds value
             let spread = difference / remainingPlayers.length
