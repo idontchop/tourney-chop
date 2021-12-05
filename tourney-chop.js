@@ -42,7 +42,7 @@ export default class TourneyChop  {
 
         this.payout = []
 
-        this.setPayoutStructure()
+        this.calcPayoutStructure()
 
     }
 
@@ -118,7 +118,8 @@ export default class TourneyChop  {
             }
 
             this.payoutStructure = newPayoutStructure
-            
+            this.calcPayoutStructure()
+
         } else {
             throw Error("PayoutStructure received none array")
         }
