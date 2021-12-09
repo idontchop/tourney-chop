@@ -16,7 +16,7 @@ export default class TourneyChop  {
 
 
     
-    constructor(chipTotal = 0, prizePool = 0, players = 2) {
+    constructor(chipTotal = 0, prizePool = 0, players = 2, chipsArray = [], prizeArray = []) {
 
         this.payoutStandard = [.27, .16, .10, .08, .07, .05, .04, .03, .025, .02, .019, .019, .019, .019, .019]
         this.chipTotal = chipTotal;     // Total count of chips, should equal sum of chipCount
@@ -44,10 +44,18 @@ export default class TourneyChop  {
 
         this.calcPayoutStructure()
 
+        // Chips Array and prize Array added later to allow storage of values in localstorage
+        chipsArray.forEach( (e,i) => this.setChipCount(e,i))
+        prizeArray.forEach( (e,i) => this.setPayout(e,i))
+
     }
 
     get chipsAndPrize() {
         return [this.chipCount, this.payout]
+    }
+
+    get dataSave() {
+        return [this.chipTotal, this.prizePool, this.players, this.chipCount, this.payout]
     }
 
     get totals() {
@@ -65,11 +73,13 @@ export default class TourneyChop  {
      */
     setChipCount ( chips, position ) {
 
+        chips = parseInt(chips)
+        position = parseInt(position)
         if ( chips % 1 !== 0 ||
              position < 0 ||
              position > this.players -1 ||
              (chips === 0 && position === 0) ||
-             (chips > this.chipTotal && this.locked)) throw new Error("malformed position argument: " + position + " c: " + chips)
+             (chips > this.chipTotal && this.locked)) throw new Error("malformed position argument: " + position + " c: " + chips + " plys: " + this.players)
 
         if ( chips === 0 ) {
             this.popPlayer(position)
