@@ -103,6 +103,8 @@ export default class TourneyChop  {
 
     setPayout ( payout, position ) {
 
+        payout = parseInt(payout)
+
         if ( payout % 1 !== 0 ||
              payout < 0 ||
              (this.plocked && payout > this.prizePool) ||
@@ -161,13 +163,12 @@ export default class TourneyChop  {
         // Check if any players have less chips than the spread of remainder, if so
         // set them to 1 and reduce difference
         // otherwise, add them to list to receive difference
-        console.log(remainingPlayers, start, end, difference, position)
+        //console.log(remainingPlayers, start, end, difference, position)
         for ( let i = start; i < end && difference <= 0; i++) {
             if ( array[i] === 1 && difference < 0) {
                 // do nothing, skip this stack
-                console.log(1)
             } else if (array[i] + Math.floor(difference / (remainingPlayers.length)) <= 1 ) {
-                console.log(2)
+                
                 // difference should always be negative if we get here
 
                 difference += (array[i] - 1)
@@ -193,7 +194,7 @@ export default class TourneyChop  {
             let rest = difference % remainingPlayers.length // remainder
             let remainder = rest // remainder holds value
             let spread = difference / remainingPlayers.length
-            console.log(remainingPlayers, rest, remainder, difference, spread, array)
+            //console.log(remainingPlayers, rest, remainder, difference, spread, array)
 
             for ( let k = remainingPlayers.length -1 ; k >= 0; k--) {    
                 let i = remainingPlayers[k]
@@ -228,7 +229,7 @@ export default class TourneyChop  {
             remainingPlayers = remainingPlayers.filter ( e => array[e] !== 1)
         }
 
-        console.log("Returning:", array)
+        //console.log("Returning:", array)
         return array
     }
 
