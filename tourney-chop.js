@@ -73,6 +73,8 @@ export default class TourneyChop  {
      */
     setChipCount ( chips, position ) {
 
+        console.log(chips, position, this.chipCount[position])
+
         chips = parseInt(chips)
         position = parseInt(position)
         if ( chips % 1 !== 0 ||
@@ -84,6 +86,13 @@ export default class TourneyChop  {
         if ( chips === 0 ) {
             this.popPlayer(position)
         } else {
+
+            if (position === 0 && this.players == 1 && this.locked) {
+                // If locked chip count and only 1 player and 1st player being edited.
+                // Need to add a 2nd player
+                this.addPlayer()
+
+            }
             
             let difference = this.chipCount[position] - chips;
 
@@ -149,6 +158,8 @@ export default class TourneyChop  {
      */
     distributeRemainder ( array, difference, position ) {
 
+        console.log("dr: ", array, difference, position, this.players)
+
         let start = (position < this.players-1) ? position + 1 : 0;
         let end = (position < this.players-1) ? this.players : position;
         let remainingPlayers = [] // list of players to add chips to
@@ -184,7 +195,7 @@ export default class TourneyChop  {
                 //     array[i] = 1
                 // }
             } else {
-                console.log(3) // dev
+                console.log("3: ", array, difference, position, this.players) // dev
                 
             }
         }
