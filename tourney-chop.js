@@ -73,7 +73,7 @@ export default class TourneyChop  {
      */
     setChipCount ( chips, position ) {
 
-        console.log(chips, position, this.chipCount[position])
+        //fconsole.log(chips, position, this.chipCount[position])
 
         chips = parseInt(chips)
         position = parseInt(position)
@@ -158,7 +158,7 @@ export default class TourneyChop  {
      */
     distributeRemainder ( array, difference, position ) {
 
-        console.log("dr: ", array, difference, position, this.players)
+        //console.log("dr: ", array, difference, position, this.players)
 
         let start = (position < this.players-1) ? position + 1 : 0;
         let end = (position < this.players-1) ? this.players : position;
