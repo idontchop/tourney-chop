@@ -16,7 +16,7 @@ export default class TourneyChop  {
 
 
     
-    constructor(chipTotal = 0, prizePool = 0, players = 2, chipsArray = [], prizeArray = []) {
+    constructor(chipTotal = 0, prizePool = 0, players = 2, chipsArray = [], prizeArray = [], locked, plocked) {
 
         this.payoutStandard = [.27, .16, .10, .08, .07, .05, .04, .03, .025, .02, .019, .019, .019, .019, .019]
         this.chipTotal = chipTotal;     // Total count of chips, should equal sum of chipCount
@@ -24,10 +24,16 @@ export default class TourneyChop  {
         this.players = players;         // Number of players
         this.payoutStructure = this.payoutStandard;
 
-        this.locked = !(chipTotal === 0);
-            // if locked is true, chipTotal has been set and cannot be changed
+        console.log(chipTotal, prizePool, players, chipsArray, prizeArray, locked, plocked)
+        console.log(locked == null)
+        if (locked == null) {
+            this.locked = !(chipTotal === 0);
+                // if locked is true, chipTotal has been set and cannot be changed
+        } else {
+            this.locked = locked
+        }
 
-        this.plocked = false; // prizepool can only be locked by user
+        this.plocked = (typeof plocked === undefined || typeof plocked === null) ? false : plocked; // prizepool can only be locked by user
 
         if ( this.locked ) {
             this.chipCount = Array(players).fill( Math.round(chipTotal / players) )
@@ -55,13 +61,25 @@ export default class TourneyChop  {
     }
 
     get dataSave() {
-        return [this.chipTotal, this.prizePool, this.players, this.chipCount, this.payout]
+        return [this.chipTotal, this.prizePool, this.players, this.chipCount, this.payout, this.locked, this.plocked]
     }
 
     get totals() {
         return [this.chipTotal, this.prizePool]
     }
 
+    resetChipCounts() {
+
+        // reset chip counts if locked and chip total doesn't equal sum
+        if (this.locked && this.chipTotal !== this.chipCount.reduce ( (a,b) => a+b) ) {
+            this.chipCount = Array(this.players).fill( Math.round(this.chipTotal / this.players))
+            console.log(this.chipCount,this.chiptotal, this.chipCount.reduce ( (sum, e) => sum + e))
+            // add difference to first place
+            this.chipCount[0] += (this.chipTotal - this.chipCount.reduce ( (sum, e) => sum + e))
+        }
+
+        console.log(this.chipTotal, this.chipCount)
+    }
     /**
      * position starts at 0
      * 
@@ -81,7 +99,7 @@ export default class TourneyChop  {
              position < 0 ||
              position > this.players -1 ||
              (chips === 0 && position === 0) ||
-             (chips > this.chipTotal && this.locked)) throw new Error("malformed position argument: " + position + " c: " + chips + " plys: " + this.players)
+             (chips > this.chipTotal && this.locked)) throw new Error("malformed position argument: " + position + " c: " + chips + " plys: " + this.players + (this.locked ? ` locked` : ``))
 
         if ( chips === 0 ) {
             this.popPlayer(position)
