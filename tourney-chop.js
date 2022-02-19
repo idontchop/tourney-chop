@@ -108,7 +108,12 @@ export default class TourneyChop  {
             if (position === 0 && this.players == 1 && this.locked) {
                 // If locked chip count and only 1 player and 1st player being edited.
                 // Need to add a 2nd player
-                this.addPlayer()
+                /*this.players++
+                this.chipCount.push(0)
+                this.setChipCount(1, this.players-1)
+        
+                this.payout.push(0)
+                this.setPayout(Math.floor(this.payoutStandard[this.players] * this.prizePool), this.players-1)*/
 
             }
             
