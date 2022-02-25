@@ -73,12 +73,12 @@ export default class TourneyChop  {
         // reset chip counts if locked and chip total doesn't equal sum
         if (this.locked && this.chipTotal !== this.chipCount.reduce ( (a,b) => a+b) ) {
             this.chipCount = Array(this.players).fill( Math.round(this.chipTotal / this.players))
-            console.log(this.chipCount,this.chiptotal, this.chipCount.reduce ( (sum, e) => sum + e))
+            //console.log(this.chipCount,this.chiptotal, this.chipCount.reduce ( (sum, e) => sum + e))
             // add difference to first place
             this.chipCount[0] += (this.chipTotal - this.chipCount.reduce ( (sum, e) => sum + e))
         }
 
-        console.log(this.chipTotal, this.chipCount)
+        //console.log(this.chipTotal, this.chipCount)
     }
     /**
      * position starts at 0
@@ -218,7 +218,7 @@ export default class TourneyChop  {
                 //     array[i] = 1
                 // }
             } else {
-                console.log("3: ", array, difference, position, this.players) // dev
+                //console.log("3: ", array, difference, position, this.players) // dev
                 
             }
         }
@@ -391,20 +391,49 @@ export default class TourneyChop  {
     chopChips () {
         return this.calcChipChop()
     }
-    calcChipChop () {
+    calcChipChop (fair = true) {
 
         // find guarenteed payout
         let lowestPay = this.payout.reduce ( (a,b) => Math.min(a,b))
+
+        // find 1st place
+        let highestPay = this.payout.reduce ( (a,b) => Math.max(a,b))
 
         // calculate total winnable amount after guarentee
         let above = this.payout.map(e => e-lowestPay)
             .reduce ( (a,b) => a+b)
 
         // calculate share of 
-        return this.chipCount.map ( e => 
+        let unfair =  this.chipCount.map ( e => 
             ( e / this.chipTotal ) * above + lowestPay
         )
-        .map ( e => Math.round(e))
+        .map ( e => Math.floor(e))
+
+        if ( fair && unfair.filter (e => e > highestPay).length === 1) {
+            // one has payout more than 1st place
+            let diff = unfair.filter (e => e > highestPay)[0] - highestPay
+            
+            let remainingChipCount = this.chipCount.reduce ( (a,b,i) => a + ( unfair[i] < highestPay ? b : 0),0)
+
+            let add = this.chipCount.map( (a,i) => unfair[i] < highestPay ? (a/remainingChipCount) * diff : 0)
+            let fair = unfair
+                .map( (a,i) => a > highestPay ? highestPay : a+add[i])
+                .map(e => Math.floor(e))
+
+            
+            unfair = fair
+        } 
+
+        let remainder = this.payout.reduce( (a,b) => a+b) - unfair.reduce( (a,b) => a+b)
+
+        let indexOfMaxValue = unfair.reduce((iMax, x, i, arr) => x > arr[iMax] ? i : iMax, 0);
+
+        unfair[indexOfMaxValue] += remainder // could put over 1st place, that's acceptable in those situations
+
+        return unfair
+
+
+        
     }
 
     calcCombinations(set,length) {
