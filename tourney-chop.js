@@ -356,12 +356,14 @@ export default class TourneyChop  {
     }
     calcICM () {
 
+        let payouts = [...this.payout].sort( (a,b) => b-a)
+
         return this.chipCount.map( (e,i) => {
 
             // array of chip counts of other players minus this one
             let chips = this.chipCount.slice(0,i).concat(this.chipCount.slice(i+1,this.players))
             // calculate equity for each prize
-            return this.payout.map ( (prize,pIndex) => {
+            return payouts.map ( (prize,pIndex) => {
                 
                 // just need to calc each scenario of chip stacks above
                 // with permutations, calculate different ways of placing
