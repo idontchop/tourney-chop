@@ -18,14 +18,22 @@ export default class TourneyChop  {
     
     constructor(chipTotal = 0, prizePool = 0, players = 2, chipsArray = [], prizeArray = [], locked, plocked) {
 
-        this.payoutStandard = [.27, .16, .10, .08, .07, .05, .04, .03, .025, .02, .019, .019, .019, .019, .019]
+        this.payoutStandard = [[1],[.65,.35],
+            [.50,.35,.15],
+            [.40,.30,.20,.10],
+            [.30,.25,.20,.15,.10],
+            [.30,.25,.15,.08,.07,.05],
+            [.30,.22,.15,.12,.10,.06,.05],
+            [.25,.20,.16,.14,.12,.08,.06,.05],
+            [.22,.16,.14,.13,.11,.08,.06,.05,.05],            
+            [.27, .16, .10, .08, .07, .05, .04, .03, .025, .02, .019, .019, .019, .019, .019]]
         this.chipTotal = chipTotal;     // Total count of chips, should equal sum of chipCount
         this.prizePool = prizePool;     // Prizepool, should equal sum of payout
         this.players = players;         // Number of players
-        this.payoutStructure = this.payoutStandard;
+        this.payoutStructure = players <= this.payoutStandard.length ? this.payoutStandard[players-1] : this.payoutStandard[9];
 
-        console.log(chipTotal, prizePool, players, chipsArray, prizeArray, locked, plocked)
-        console.log(locked == null)
+        //console.log(chipTotal, prizePool, players, chipsArray, prizeArray, locked, plocked)
+        //console.log(locked == null)
         if (locked == null) {
             this.locked = !(chipTotal === 0);
                 // if locked is true, chipTotal has been set and cannot be changed
@@ -153,6 +161,11 @@ export default class TourneyChop  {
         }
     }
 
+    /**
+     * If this is used, it should override payoutStandard which is used in several places to set the 
+     * payout structure
+     * @param {*} newPayoutStructure 
+     */
     setPayoutStructure ( newPayoutStructure ) {
         if (Array.isArray(newPayoutStructure)) {
             for( let i = 0; i < newPayoutStructure; i++) {
@@ -283,13 +296,14 @@ export default class TourneyChop  {
 
     setPrizePool ( total ) {
 
+        
         if ( this.plocked ) {
             let diff = total - this.prizePool
             this.payout = this.payout.map ( e => Math.round(e + (diff/this.players)) )
             this.prizePool = total
         } else {
             this.prizePool = Number(total)
-
+            this.payoutStructure = this.players <= this.payoutStandard.length ? this.payoutStandard[this.players-1] : this.payoutStandard[9];
             this.calcPayoutStructure()
         }
     }
@@ -334,8 +348,10 @@ export default class TourneyChop  {
         this.chipCount.push(0)
         this.setChipCount(1, this.players-1)
 
+        let payoutStuctureIndex = this.players > 9 ? 9 : (this.players -1);
+
         this.payout.push(0)
-        this.setPayout(Math.floor(this.payoutStandard[this.players] * this.prizePool), this.players-1)
+        this.setPayout(Math.floor(this.payoutStandard[payoutStuctureIndex][this.players-1 > 14 ? 14: this.players-1] * this.prizePool), this.players-1)
 
     }
 
