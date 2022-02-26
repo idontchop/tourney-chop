@@ -97,7 +97,7 @@ export default class TourneyChop  {
         position = parseInt(position)
         if ( chips % 1 !== 0 ||
              position < 0 ||
-             position > this.players -1 ||
+             (position > this.players -1 && chips !== 0) ||
              (chips === 0 && position === 0) ||
              (chips > this.chipTotal && this.locked)) throw new Error("malformed position argument: " + position + " c: " + chips + " plys: " + this.players + (this.locked ? ` locked` : ``))
 
@@ -149,7 +149,7 @@ export default class TourneyChop  {
         if ( this.plocked ) {
             this.payout = this.distributeRemainder(this.payout, difference, position)
         } else {
-            //this.resetPrizePool()
+            this.resetPrizePool()
         }
     }
 
@@ -348,7 +348,11 @@ export default class TourneyChop  {
     }
 
     resetPrizePool () {
-        this.prizePool = this.payout.reduce ( (sum, e) => sum + e)
+        
+        let sumPayouts = this.payout.reduce ( (sum, e) => sum + e)
+        if (this.prizePool < sumPayouts) {
+            this.prizePool = sumPayouts
+        }
     }
 
     chopICM () {
