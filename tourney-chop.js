@@ -366,9 +366,12 @@ export default class TourneyChop  {
     resetPrizePool () {
         
         let sumPayouts = this.payout.reduce ( (sum, e) => sum + e)
+        /* If we ever have prizepool & remaining prize pool
         if (this.prizePool < sumPayouts) {
             this.prizePool = sumPayouts
-        }
+        }*/
+
+        this.prizePool = sumPayouts
     }
 
     chopICM () {
@@ -378,7 +381,7 @@ export default class TourneyChop  {
 
         let payouts = [...this.payout].sort( (a,b) => b-a)
 
-        return this.chipCount.map( (e,i) => {
+        let results = this.chipCount.map( (e,i) => {
 
             // array of chip counts of other players minus this one
             let chips = this.chipCount.slice(0,i).concat(this.chipCount.slice(i+1,this.players))
@@ -407,6 +410,8 @@ export default class TourneyChop  {
             // round the results
             // possible there ends up being a remainder? 
         }).map ( e => Math.round(e))
+
+        return this.addRemainderToFirst(results)
 
     }
 
@@ -441,21 +446,27 @@ export default class TourneyChop  {
             let fair = unfair
                 .map( (a,i) => a > highestPay ? highestPay : a+add[i])
                 .map(e => Math.floor(e))
-
             
             unfair = fair
         } 
 
-        let remainder = this.payout.reduce( (a,b) => a+b) - unfair.reduce( (a,b) => a+b)
+        return this.addRemainderToFirst(unfair)     
+    }
 
-        let indexOfMaxValue = unfair.reduce((iMax, x, i, arr) => x > arr[iMax] ? i : iMax, 0);
+    /**
+     * Called by calcICM and calcChipChop to count any remainders and add them to first place
+     * @param {Array} results 
+     */
+    addRemainderToFirst(results) {
 
-        unfair[indexOfMaxValue] += remainder // could put over 1st place, that's acceptable in those situations
+        let remainder = this.payout.reduce( (a,b) => a+b) - results.reduce( (a,b) => a+b)
 
-        return unfair
+        let indexOfMaxValue = results.reduce((iMax, x, i, arr) => x > arr[iMax] ? i : iMax, 0);
 
+        results[indexOfMaxValue] += remainder // could put over 1st place, that's acceptable in those situations
 
-        
+        return results
+
     }
 
     calcCombinations(set,length) {
