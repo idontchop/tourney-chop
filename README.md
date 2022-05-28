@@ -6,7 +6,7 @@ Javascript ES6 singleton to easily store and calculate poker tournament chops. (
 
 Add to your Node package. (only tested with create-react-app)
 In package.json under "dependencies":
-    "tourney-chop": "git@github.com:idontchop/tourney-chop.git",
+```"tourney-chop": "git@github.com:idontchop/tourney-chop.git"```
 
 
 
