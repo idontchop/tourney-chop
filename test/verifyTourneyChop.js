@@ -92,7 +92,7 @@ describe('TourneyChop Test', function () {
         let t = new TourneyChop(totalChips, 8000, 6)
         let testArray = []
 
-        for ( let i = 0; i < 10; i++) {
+        for ( let i = 0; i < 10000; i++) {
             t.setChipCount(Math.floor((Math.random() * 20000)) + 50000, Math.floor(Math.random() * 5))
             let chipCount = t.chipsAndPrize[0].reduce((a,b) => a+b)
             if (t.totals[0] !== chipCount) {

@@ -133,6 +133,11 @@ export default class TourneyChop  {
 
             if (this.locked) {
                 // if locked, spread the difference down rest, unless last was changed, then spread equally
+
+                if (chips > this.chipTotal - this.chipCount.length + 1) {
+                    // modify chips to a workable amount
+                    chips = this.chipTotal - this.chipCount.length + 1
+                }
                 
                 this.chipCount = this.distributeRemainder(this.chipCount, difference, position)
 
@@ -188,11 +193,8 @@ export default class TourneyChop  {
      * Ran by setChipCount and setPayout to distribute chips to other players
      * when a player's chips are set and the chip total / prize pool is locked.
      * 
-     * @todo fix
-     * Note: This is an imperative mess. DOES NOT PASS TESTS
-     * Until fixed, must have input controls that don't allow a chip stack to be set
-     * if cannot substract from players below (don't allow input of stack bigger than above stack)
-     * Rewrite this mess
+     * @todo fix -- prob never happen
+     * Note: This is an imperative mess. PASSES TESTS
      * 
      * @param {*} array 
      * @param {*} difference 
@@ -242,8 +244,15 @@ export default class TourneyChop  {
             }
         }
 
-            // if we still have difference, distribute to remainging players
-        while ( difference != 0 && remainingPlayers.length > 0) {
+        // if we still have difference, distribute to remainging players
+        while ( difference !== 0) {
+
+            // Add more players, this happens if substracting and ran out below
+            if (remainingPlayers.length === 0) {
+                array.forEach( (v,i) => {
+                    if (v > 1) remainingPlayers.push(i)
+                })
+            }
             let rest = difference % remainingPlayers.length // remainder
             let remainder = rest // remainder holds value
             let spread = difference / remainingPlayers.length
@@ -282,7 +291,6 @@ export default class TourneyChop  {
             remainingPlayers = remainingPlayers.filter ( e => array[e] !== 1)
         }
 
-        //console.log("Returning:", array)
         return array
     }
 
