@@ -135,7 +135,7 @@ export default class TourneyChop  {
                 // if locked, spread the difference down rest, unless last was changed, then spread equally
                 
                 this.chipCount = this.distributeRemainder(this.chipCount, difference, position)
-                
+
             } else {
                 // not locked so just reset chip counts
                 this.resetChipTotal();
@@ -158,7 +158,7 @@ export default class TourneyChop  {
 
         if ( this.plocked ) {
             this.payout = this.distributeRemainder(this.payout, difference, position)
-        } else {
+        } else {            
             this.resetPrizePool()
         }
     }
@@ -188,7 +188,11 @@ export default class TourneyChop  {
      * Ran by setChipCount and setPayout to distribute chips to other players
      * when a player's chips are set and the chip total / prize pool is locked.
      * 
-     * Note: This is an imperative mess.
+     * @todo fix
+     * Note: This is an imperative mess. DOES NOT PASS TESTS
+     * Until fixed, must have input controls that don't allow a chip stack to be set
+     * if cannot substract from players below (don't allow input of stack bigger than above stack)
+     * Rewrite this mess
      * 
      * @param {*} array 
      * @param {*} difference 

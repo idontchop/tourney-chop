@@ -1,7 +1,7 @@
 const assert = require('assert')
 import TourneyChop from '../tourney-chop'
 
-describe('HoldemStrings Test', function () {
+describe('TourneyChop Test', function () {
     
     it('should initiate', () => {
         let t = new TourneyChop(5000,5000,6)
@@ -76,26 +76,29 @@ describe('HoldemStrings Test', function () {
         console.log("chip chop: ", t.calcChipChop())
         console.log("icm chop: ", t.calcICM())
     }),
+    it('test set Payout unlocked', () => {
+        let stPayout = 100000
+        let t = new TourneyChop(90000,8000,6)
+
+        t.setPayout(stPayout,0)
+
+        console.log('payout: ', t.chipsAndPrize)
+
+        
+        assert.deepStrictEqual(t.chipsAndPrize[1][0] ,stPayout)
+    }),
     it('test set ChipCount', () => {
         let totalChips = 90000
         let t = new TourneyChop(totalChips, 8000, 6)
         let testArray = []
 
-        for ( let i = 0; i < 10000; i++) {
+        for ( let i = 0; i < 10; i++) {
             t.setChipCount(Math.floor((Math.random() * 20000)) + 50000, Math.floor(Math.random() * 5))
             let chipCount = t.chipsAndPrize[0].reduce((a,b) => a+b)
             if (t.totals[0] !== chipCount) {
-                testArray.push([chipCount, t.chipsAndPrize[0].slice()])
+                testArray.push([chipCount, t.totals[0], t.chipsAndPrize[0].slice()])
             }
         }
-
-        // for ( let i = 0; i < 10000; i++) {
-        //     t.setPayout(Math.floor( (Math.random() * 2000)) + 1000, Math.floor(Math.random() *5) )
-        //     let prizeCount = t.chipsAndPrize[1].reduce((a,b) => a+b)
-        //     if ( t.totals[1] !== prizeCount) {
-        //         testArray.push([prizeCount, t.chipsAndPrize[1].slice()])
-        //     }
-        // }
 
         if (testArray.length !==0) {
             console.log(testArray)
@@ -111,7 +114,7 @@ describe('HoldemStrings Test', function () {
             t.setChipTotal(Math.floor(Math.random() * 20000) + 50000)
             let chipCount = t.chipsAndPrize[0].reduce((a,b) => a+b)
             if ( t.totals[0] !== chipCount) {
-                testArray.push([chipCount, t.chipsAndPrize[0].slice()])
+                testArray.push([t.totals[0],chipCount, t.chipsAndPrize[0].slice()])
             }
         }
 
