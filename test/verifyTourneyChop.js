@@ -1,4 +1,5 @@
 const assert = require('assert')
+const expect = require('expect.js')
 import TourneyChop from '../tourney-chop'
 
 describe('TourneyChop Test', function () {
@@ -122,5 +123,15 @@ describe('TourneyChop Test', function () {
             console.log(testArray)
         }
         assert.deepStrictEqual(testArray.length ,0)
+    }),
+    it('test unfair chip chop', () => {
+        let t = new TourneyChop(30000,30000,3)
+        t.setChipCount(29900,0)
+
+        let chopAmount = t.calcChipChop(false)
+        expect( chopAmount[0] > 15000 ).to.be(true)
+
+        chopAmount = t.calcChipChop(true)
+        expect ( chopAmount[0] > 15003 ).to.be(false)
     })
 })

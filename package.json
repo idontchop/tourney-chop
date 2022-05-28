@@ -1,6 +1,6 @@
 {
   "name": "tourney-chop",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Tournament Chop ICM/Chip calculation library",
   "main": "tourney-chop.js",
   "module": "main.js",
@@ -29,6 +29,7 @@
     "@babel/core": "^7.12.10"
   },
   "dependencies": {
-    "esm": "^3.2.25"
+    "esm": "^3.2.25",
+    "expect.js": "^0.3.1"
   }
 }

@@ -250,7 +250,7 @@ export default class TourneyChop  {
             // Add more players, this happens if substracting and ran out below
             if (remainingPlayers.length === 0) {
                 array.forEach( (v,i) => {
-                    if (v > 1) remainingPlayers.push(i)
+                    if (v > 1 && i !== position) remainingPlayers.push(i)
                 })
             }
             let rest = difference % remainingPlayers.length // remainder
@@ -432,7 +432,18 @@ export default class TourneyChop  {
     chopChips () {
         return this.calcChipChop()
     }
-    calcChipChop (fair = true) {
+
+    /**
+     * Usefair is sorta added. Whether fair or not, it won't pay a player less
+     * than the lowest available prize. It will give the chip leader more than
+     * 1st if useFair is set false.
+     * 
+     * default useFair = true
+     * 
+     * @param {bool} useFair 
+     * @returns 
+     */
+    calcChipChop (useFair = true) {
 
         // find guarenteed payout
         let lowestPay = this.payout.reduce ( (a,b) => Math.min(a,b))
@@ -450,11 +461,12 @@ export default class TourneyChop  {
         )
         .map ( e => Math.floor(e))
 
-        if ( fair && unfair.filter (e => e > highestPay).length === 1) {
+        if ( useFair && unfair.filter (e => e > highestPay).length === 1) {
             // one has payout more than 1st place
             let diff = unfair.filter (e => e > highestPay)[0] - highestPay
             
-            let remainingChipCount = this.chipCount.reduce ( (a,b,i) => a + ( unfair[i] < highestPay ? b : 0),0)
+            let remainingChipCount = this.chipCount.reduce ( (a,b,i) => 
+                a + ( unfair[i] < highestPay ? b : 0), 0)
 
             let add = this.chipCount.map( (a,i) => unfair[i] < highestPay ? (a/remainingChipCount) * diff : 0)
             let fair = unfair

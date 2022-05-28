@@ -61,12 +61,12 @@ Removes the player in position
 Adds a new player, sets chips to 1. If locked, takes 1 chip from chip leader
 
 
-#### chopICM ()
+#### calcICM ()
 
 Runs ICM chip calculation. Gives any remainder to chip leader. After running, values can be retrieved with get methods
 
 
-#### chopChips()
+#### calcChipChop()
 
 Runs chip chop calculation. Gives any remainder to chip leader. Currently will not perform an "unfair" calculation where 
 1st place would receive more than 1st or last place less than last (exception with remainders). 
